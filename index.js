@@ -1,7 +1,9 @@
 const express = require('express')
 const app = express()
 
-let persons = [
+app.use(express.json())
+
+const persons = [
       { 
         "name": "Arto Hellas", 
         "number": "040-123456",
@@ -29,10 +31,9 @@ app.get('/', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-    const listSize = persons.length
-    const contentInfo = `Phonebook has info for ${listSize} persons.`
-    const currentTime = new Date().toLocaleString('en-US', { timeZone: 'Europe/Helsinki'})
-    res.send(contentInfo + `\n` + currentTime)
+    const size = persons.length
+    const currentTime = new Date()
+    res.send(`<p>Phonebook has info for ${size} people. <br></br> ${currentTime}</p>`)
 })
 
 app.get('/api/persons', (req, res) => {
@@ -40,13 +41,47 @@ app.get('/api/persons', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(person => person.id === id)
-    if (person) {
-        res.json(person)
-    } else {
-        res.status(404).end()
-    }
+  const id = Number(req.params.id)
+  const person = persons.find(person => person.id === id)
+  if (person) {
+    res.json(person)
+  } else {
+    res.status(404).end()
+  }
+})
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+  const id = Math.floor(Math.random() * 10000000)
+  const names = persons.map(person => person.name)
+  console.log(body)
+
+  if (!body.name) {
+    res.status(400).json({ error: 'name not found' }).end()
+  }
+
+  if (!body.number) {
+    res.status(400).json({ error: 'number not found' }).end()
+  }
+
+  if (names.includes(body.name)) {
+    res.status(400).json({ error: 'name must be unique' }).end()
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: id
+  }
+  persons.concat(person)
+
+  res.json(person)
+})
+
+app.delete('/api/persons/:id', (req, res) => {
+  const id = number(req.params.id)
+  persons = persons.filter(person => person.id !== id)
+  res.status(204).end()
 })
 
 const PORT = 3001

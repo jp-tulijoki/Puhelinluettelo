@@ -1,9 +1,13 @@
 const express = require('express')
+const cors = require('cors')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+app.use(cors())
+app.use(morgan('tiny'))
 
-const persons = [
+let persons = [
       { 
         "name": "Arto Hellas", 
         "number": "040-123456",
@@ -79,12 +83,12 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = number(req.params.id)
+  const id = Number(req.params.id)
   persons = persons.filter(person => person.id !== id)
   res.status(204).end()
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)    
 })

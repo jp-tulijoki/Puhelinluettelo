@@ -11,22 +11,22 @@ app.use(cors())
 app.use(morgan('tiny'))
 
 app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1>')
+  response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/info', (request, response) => {
-    const currentTime = new Date()
-    Person.count({})
-      .then(size => {
-        response.send(`<p>Phonebook has info for ${size} people. <br></br> ${currentTime}</p>`)
-      })
-      .catch(error => next(error))
+app.get('/info', (request, response, next) => {
+  const currentTime = new Date()
+  Person.count({})
+    .then(size => {
+      response.send(`<p>Phonebook has info for ${size} people. <br></br> ${currentTime}</p>`)
+    })
+    .catch(error => next(error))
 })
 
 app.get('/api/persons', (request, response) => {
-    Person.find({}).then(persons => {
-      response.json(persons.map(person => person.toJSON()))
-    })
+  Person.find({}).then(persons => {
+    response.json(persons.map(person => person.toJSON()))
+  })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -48,10 +48,11 @@ app.post('/api/persons', (request, response, next) => {
     name: body.name,
     number: body.number,
   })
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
-  })
-  .catch(error => next(error))
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -69,8 +70,8 @@ app.put('/api/persons/:id', (request, response, next) => {
     name: body.name,
     number: body.number
   }
-  
-  Person.findByIdAndUpdate(request.params.id, person, { new: true})
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
     .then(updatedPerson => {
       response.json(updatedPerson)
     })
@@ -99,5 +100,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)    
+  console.log(`Server running on port ${PORT}`)
 })
